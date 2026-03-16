@@ -1,0 +1,46 @@
+/* App.css */
+
+/* 1. Basic Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background-color: #050301; /* Black background like your HTML project */
+  overflow: hidden; /* Scrollbar bondho korar jonno */
+  font-family: 'Inter', sans-serif;
+}
+
+/* 2. Video Feed Style (Jodi Tailwind use na koro) */
+.video-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Mirror effect for camera */
+}
+
+/* 3. Canvas Safe-Guard */
+canvas {
+  pointer-events: none; /* Jate canvas-er upor mouse click block na hoy */
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10; /* Shobar upore thakbe line gulo */
+}
+
+/* 4. Custom Neon Effects (Jodi Tailwind utilities-e problem kore eikhane rakhte paro) */
+.neon-text {
+  color: #F5D061;
+  text-shadow: 0 0 10px rgba(245, 208, 97, 0.8);
+}
