@@ -1,0 +1,214 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+
+  /* ================= 💎 GLASS SYSTEM ================= */
+  /* ল্যাপটপের জন্য রেসপন্সিভ গ্লাস ইফেক্ট */
+  .glass-panel {
+    background: rgba(15, 23, 42, 0.55);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+
+    box-shadow:
+      0 20px 60px rgba(0,0,0,0.6),
+      inset 0 0 30px rgba(255,255,255,0.03),
+      inset 0 0 80px rgba(59,130,246,0.05);
+
+    transition: all 0.4s ease;
+  }
+
+  /* ল্যাপটপ বা ছোট স্ক্রিনের জন্য অপ্টিমাইজেশন */
+  @media (max-height: 800px) {
+    .glass-panel {
+      backdrop-filter: blur(12px) saturate(160%);
+      padding: 1rem !important; /* ল্যাপটপে প্যাডিং কমিয়ে জায়গা বাঁচানো */
+    }
+  }
+
+  .glass-panel:hover {
+    border-color: rgba(99,102,241,0.4);
+    box-shadow:
+      0 0 25px rgba(99,102,241,0.25),
+      inset 0 0 40px rgba(59,130,246,0.08);
+  }
+
+  /* ================= 🧠 NEURAL PULSE ================= */
+  @keyframes neuralPulse {
+    0%, 100% {
+      box-shadow:
+        0 0 10px rgba(59,130,246,0.2),
+        0 0 30px rgba(99,102,241,0.1);
+    }
+    50% {
+      box-shadow:
+        0 0 25px rgba(59,130,246,0.5),
+        0 0 60px rgba(99,102,241,0.25);
+    }
+  }
+
+  .neural-pulse {
+    animation: neuralPulse 3s ease-in-out infinite;
+  }
+
+  /* ================= 📡 SCAN LINE ================= */
+  @keyframes scanLine {
+    0% { transform: translateY(-100%); opacity: 0; }
+    50% { opacity: 0.6; }
+    100% { transform: translateY(200%); opacity: 0; }
+  }
+
+  .scan-overlay {
+    position: relative;
+    overflow: hidden; /* স্ক্যান লাইন যাতে বাইরে না যায় */
+  }
+
+  .scan-overlay::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(59,130,246,0.15),
+      transparent
+    );
+    animation: scanLine 4s linear infinite;
+    pointer-events: none;
+  }
+
+  /* ================= 📺 NOISE OVERLAY ================= */
+  .noise-overlay {
+    position: absolute;
+    inset: 0;
+    background-image: url("https://grainy-gradients.vercel.app/noise.svg");
+    opacity: 0.04;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ================= ✨ GLOW BORDER ================= */
+  .glow-border {
+    position: relative;
+    z-index: 0;
+  }
+
+  .glow-border::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: linear-gradient(120deg, #6366f1, #3b82f6, #22d3ee);
+    opacity: 0.2;
+    filter: blur(10px);
+    z-index: -1;
+  }
+
+  /* ================= 🚥 ACTIVE STATES ================= */
+  .neon-border-active {
+    border-color: rgba(52, 211, 153, 0.7);
+    box-shadow:
+      0 0 15px rgba(52, 211, 153, 0.5),
+      0 0 40px rgba(52, 211, 153, 0.2),
+      inset 0 0 12px rgba(52, 211, 153, 0.25);
+  }
+
+  .neon-glow-blue {
+    box-shadow:
+      0 0 12px rgba(59, 130, 246, 0.7),
+      0 0 30px rgba(59, 130, 246, 0.5);
+  }
+
+  .neon-glow-red {
+    box-shadow:
+      0 0 12px rgba(239, 68, 68, 0.7),
+      0 0 30px rgba(239, 68, 68, 0.4);
+  }
+
+  /* ================= 📝 TEXT ================= */
+  .neon-text-yellow {
+    color: #f5d061;
+    text-shadow:
+      0 0 6px rgba(245, 208, 97, 0.9),
+      0 0 16px rgba(245, 208, 97, 0.6),
+      0 0 28px rgba(245, 208, 97, 0.4);
+  }
+
+  .text-dim {
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* ================= 🖱️ INTERACTION ================= */
+  .hover-float {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+
+  .hover-float:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  }
+
+  .button-glow {
+    transition: all 0.25s ease;
+  }
+
+  .button-glow:hover {
+    box-shadow:
+      0 0 15px rgba(59, 130, 246, 0.6),
+      0 0 30px rgba(59, 130, 246, 0.4);
+  }
+
+  /* ================= ⌨️ INPUT ================= */
+  .input-clean {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+  }
+
+  .input-glow:focus {
+    text-shadow: 0 0 10px rgba(245,208,97,0.7);
+  }
+
+  /* 🔥 EXTRA: CUSTOM SCROLLBAR FOR SIDEBARS */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* ================= 🎚️ RANGE SLIDER ================= */
+input[type="range"] {
+  -webkit-appearance: none;
+  background: transparent;
+  width: 100%;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  height: 4px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  margin-top: -6px;
+  height: 16px;
+  width: 16px;
+  background: linear-gradient(135deg, #3b82f6, #6366f1);
+  border-radius: 50%;
+  box-shadow:
+    0 0 12px rgba(59, 130, 246, 0.9),
+    0 0 25px rgba(59, 130, 246, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}

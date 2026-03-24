@@ -1,16 +1,28 @@
-# React + Vite
+# 🚀 IntelliBoard: Futuristic Multi-modal HCI Workspace
+Developed by **Sadekul Islam (Lì Ào)**
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+---
 
-Currently, two official plugins are available:
+### 🛰️ Project Overview (In-Progress)
+This is a cutting-edge **Human-Computer Interaction (HCI)** system designed to bridge the gap between physical gestures and digital workspaces. No mouse, no keyboard—just natural interaction.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### ✨ Key Features (Developing)
+* **Neural Gesture Tracking:** Real-time hand tracking using Google MediaPipe.
+* **Asset Beaming:** Instant image/file transfer from mobile to PC via custom JSON chunking over Firebase.
+* **AI Canvas:** Direct air-drawing and sketching with sub-millimeter precision.
+* **Multimodal Feedback:** Integrated Speech-to-Text (STT) and voice command recognition.
 
-## React Compiler
+### 🛠️ Tech Stack
+* **Frontend:** React.js / Vite
+* **Vision Engine:** MediaPipe Hands
+* **Backend & Sync:** Firebase Firestore (Custom Data Streaming Logic)
+* **Styling:** Tailwind CSS / Framer Motion
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+### 🛡️ Legal & Intellectual Property
+Copyright © 2026 Sadekul Islam (Lì Ào).  
+This project is licensed under the **MIT License**. All unique algorithms for data chunking and gesture mapping are the proprietary work of the author.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+*Note: This project is currently under active development. Some core features are private and will be released upon completion.*

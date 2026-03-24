@@ -1,125 +1,208 @@
 import { useState, useCallback, useRef } from "react";
 
-/**
- * AirPen PRO - Voice Command Hook
- * Features: Wake Word "Lì Ào", Smart Typing, Color Mapping, Brush Control
- */
-export default function useVoiceCommand({ 
-  clearCanvas, 
-  saveCanvas, 
-  setColor, 
-  setBrushSize, 
-  setPrediction 
+export default function useVoiceCommand({
+  clearCanvas,
+  saveCanvas,
+  undoCanvas,   // ✅ NEW
+  redoCanvas,   // ✅ NEW
+  setColor,
+  setBrushSize,
+  setPrediction,
+  setVoiceText,
 }) {
   const [isListening, setIsListening] = useState(false);
-  const recognitionRef = useRef(null);
 
-  // Advanced Color Palette
+  const recognitionRef = useRef(null);
+  const lastCommandRef = useRef("");
+  const cooldownRef = useRef(false);
+
+  /* ===========================
+     🎨 COLOR MAP
+  =========================== */
   const colorMap = {
-    "yellow": "#F5D061",
-    "blue": "#3b82f6",
-    "red": "#ef4444",
-    "green": "#22c55e",
-    "purple": "#a855f7",
-    "white": "#ffffff",
-    "cyan": "#06b6d4",
-    "orange": "#f97316",
-    "pink": "#ec4899",
-    "gray": "#94a3b8"
+    yellow: "#F5D061",
+    blue: "#3b82f6",
+    red: "#ef4444",
+    green: "#22c55e",
+    purple: "#a855f7",
+    white: "#ffffff",
+    cyan: "#06b6d4",
+    orange: "#f97316",
+    pink: "#ec4899",
+    gray: "#94a3b8",
   };
 
-  const toggleListening = useCallback(() => {
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  /* ===========================
+     🧠 COMMAND PROCESSOR
+  =========================== */
+  const processCommand = useCallback(
+    (text) => {
+      if (!text) return;
+
+      if (cooldownRef.current || lastCommandRef.current === text) return;
+
+      cooldownRef.current = true;
+      lastCommandRef.current = text;
+
+      let handled = false;
+
+      /* 🧠 ACTION COMMAND (PRIORITY FIRST) */
+      if (text.includes("undo")) {
+        undoCanvas?.();
+        setPrediction?.("UNDO");
+        handled = true;
+      } else if (text.includes("redo")) {
+        redoCanvas?.();
+        setPrediction?.("REDO");
+        handled = true;
+      } else if (text.includes("clear") || text.includes("erase")) {
+        clearCanvas?.();
+        setPrediction?.("BOARD CLEARED");
+        handled = true;
+      } else if (
+        text.includes("save") ||
+        text.includes("download") ||
+        text.includes("export")
+      ) {
+        saveCanvas?.();
+        setPrediction?.("SAVED");
+        handled = true;
+      }
+
+      /* 🎨 COLOR COMMAND */
+      if (!handled) {
+        for (const name in colorMap) {
+          if (text.includes(name)) {
+            setColor(colorMap[name]);
+            setPrediction?.(`COLOR: ${name.toUpperCase()}`);
+            handled = true;
+            break;
+          }
+        }
+      }
+
+      /* ✍️ BRUSH SIZE */
+      if (!handled) {
+        if (text.includes("big") || text.includes("thick")) {
+          setBrushSize(40);
+          setPrediction?.("BRUSH: MAX");
+          handled = true;
+        } else if (text.includes("small") || text.includes("thin")) {
+          setBrushSize(4);
+          setPrediction?.("BRUSH: MIN");
+          handled = true;
+        } else if (text.includes("medium")) {
+          setBrushSize(12);
+          setPrediction?.("BRUSH: MEDIUM");
+          handled = true;
+        }
+      }
+
+      /* 🧠 FALLBACK */
+      if (!handled) {
+        setPrediction?.(
+          text.charAt(0).toUpperCase() + text.slice(1)
+        );
+      }
+
+      setTimeout(() => {
+        cooldownRef.current = false;
+      }, 600);
+    },
+    [
+      clearCanvas,
+      saveCanvas,
+      undoCanvas,
+      redoCanvas,
+      setColor,
+      setBrushSize,
+      setPrediction,
+    ]
+  );
+
+  /* ===========================
+     🎙️ START LISTENING
+  =========================== */
+  const startListening = useCallback(() => {
+    const SpeechRecognition =
+      window.SpeechRecognition || window.webkitSpeechRecognition;
 
     if (!SpeechRecognition) {
-      alert("Please use Google Chrome for full AI Voice features.");
-      return;
-    }
-
-    if (isListening) {
-      recognitionRef.current?.stop();
+      alert("Use Chrome for Voice AI 🚀");
       return;
     }
 
     const recognition = new SpeechRecognition();
+
     recognition.continuous = true;
     recognition.interimResults = false;
     recognition.lang = "en-US";
 
     recognition.onstart = () => {
       setIsListening(true);
-      console.log("--- Lì Ào AI Voice Protocol Active ---");
+      console.log("🎙️ Voice AI Activated");
     };
 
-    recognition.onend = () => setIsListening(false);
-    
+    recognition.onend = () => {
+      if (isListening) recognition.start();
+      else setIsListening(false);
+    };
+
+    recognition.onerror = (e) => {
+      console.error("Speech Error:", e.error);
+    };
+
     recognition.onresult = (event) => {
-      const result = event.results[event.results.length - 1];
-      const transcript = result[0].transcript.toLowerCase().trim();
-      
-      console.log("Captured Audio:", transcript);
+      const result =
+        event.results[event.results.length - 1][0].transcript
+          .toLowerCase()
+          .trim();
 
-      // --- WAKE WORD DETECTION ---
-      const wakeWords = ["li ao", "leo", "lee ao", "lyo", "leao", "li-ao", "liao"];
-      const wakeWordFound = wakeWords.find(word => transcript.startsWith(word) || transcript.includes(word));
+      setVoiceText?.(result);
 
-      if (wakeWordFound) {
-        console.log("Wake Word Detected: Accessing System Controls...");
-        
-        // Command theke wake word-ta bad diye baki ongsho tuku neya
-        const command = transcript.replace(wakeWordFound, "").trim();
+      /* 🔥 WAKE WORD SYSTEM */
+      const wakeWords = ["li ao", "leo", "liao", "lee ao", "leao"];
 
-        // 1. DYNAMIC COLOR CONTROL
-        let foundAction = false;
-        Object.keys(colorMap).forEach((colorName) => {
-          if (command.includes(colorName)) {
-            setColor(colorMap[colorName]);
-            if (typeof setPrediction === 'function') setPrediction(`COLOR: ${colorName.toUpperCase()}`);
-            foundAction = true;
-          }
-        });
+      const hasWakeWord = wakeWords.some((w) =>
+        result.includes(w)
+      );
 
-        if (!foundAction) {
-          // 2. BRUSH SIZE CONTROLS
-          if (command.includes("big") || command.includes("thick") || command.includes("maximum")) {
-            setBrushSize(40);
-            if (typeof setPrediction === 'function') setPrediction("BRUSH: MAXIMUM");
-          } else if (command.includes("small") || command.includes("thin") || command.includes("minimum")) {
-            setBrushSize(4);
-            if (typeof setPrediction === 'function') setPrediction("BRUSH: MINIMUM");
-          } else if (command.includes("medium") || command.includes("normal")) {
-            setBrushSize(12);
-            if (typeof setPrediction === 'function') setPrediction("BRUSH: MEDIUM");
-          }
+      if (hasWakeWord) {
+        const cleaned = wakeWords.reduce(
+          (txt, w) => txt.replace(w, ""),
+          result
+        ).trim();
 
-          // 3. SYSTEM UTILITIES
-          if (command.includes("clear") || command.includes("clean") || command.includes("erase")) {
-            clearCanvas();
-            if (typeof setPrediction === 'function') setPrediction("BOARD CLEARED");
-          } else if (command.includes("save") || command.includes("export") || command.includes("download")) {
-            saveCanvas();
-            if (typeof setPrediction === 'function') setPrediction("EXPORTING DESIGN...");
-          } else if (command.includes("settings") || command.includes("config")) {
-            if (typeof setPrediction === 'function') setPrediction("OPENING SETTINGS...");
-          }
-        }
+        processCommand(cleaned);
       } else {
-        // --- PRO TYPING MODE (No Wake Word) ---
-        if (typeof setPrediction === 'function' && transcript.length > 0) {
-          const cleanText = transcript.charAt(0).toUpperCase() + transcript.slice(1);
-          setPrediction(cleanText);
-        }
+        processCommand(result);
       }
-    };
-
-    recognition.onerror = (event) => {
-      console.error("Speech Recognition Error:", event.error);
     };
 
     recognitionRef.current = recognition;
     recognition.start();
+  }, [isListening, processCommand, setVoiceText]);
 
-  }, [isListening, clearCanvas, saveCanvas, setColor, setBrushSize, setPrediction]);
+  /* ===========================
+     ⛔ STOP LISTENING
+  =========================== */
+  const stopListening = useCallback(() => {
+    recognitionRef.current?.stop();
+    setIsListening(false);
+  }, []);
 
-  return { isListening, toggleListening };
+  /* ===========================
+     🔄 TOGGLE
+  =========================== */
+  const toggleListening = useCallback(() => {
+    if (isListening) stopListening();
+    else startListening();
+  }, [isListening, startListening, stopListening]);
+
+  return {
+    isListening,
+    toggleListening,
+    startListening,
+    stopListening,
+  };
 }
